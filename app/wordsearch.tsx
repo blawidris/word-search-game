@@ -34,9 +34,20 @@ const formatTime = (timeMs: number) => {
 };
 
 export default function WordSearchScreen() {
-  const { width } = useWindowDimensions();
-  const isWide = width >= 760;
-  const gridWidth = isWide ? Math.min(width * 0.55, 480) : Math.min(width - 40, 420);
+  const { width, height } = useWindowDimensions();
+  const isLandscape = width > height;
+  const isWide = width >= 840;
+  const isCompactHeight = height < 700;
+  const isCompactWidth = width < 360;
+  const useRowLayout = isWide || isLandscape;
+
+  const horizontalPadding = isCompactWidth ? 16 : 20;
+  const contentSpacing = isCompactHeight ? 12 : 18;
+  const availableWidth = width - horizontalPadding * 2;
+  const gridMaxWidth = useRowLayout ? Math.min(availableWidth * 0.58, 520) : Math.min(availableWidth, 440);
+  const gridMaxHeight = useRowLayout ? height * 0.7 : height * (isCompactHeight ? 0.46 : 0.52);
+  const gridWidth = Math.max(240, Math.min(gridMaxWidth, gridMaxHeight));
+  const listMaxHeight = useRowLayout ? undefined : Math.max(160, height * (isCompactHeight ? 0.28 : 0.32));
 
   const [gridData, setGridData] = useState(() => generateGrid(WORD_LIST));
   const [foundWordIds, setFoundWordIds] = useState<Set<string>>(new Set());
@@ -214,16 +225,27 @@ export default function WordSearchScreen() {
   return (
     <SafeAreaView style={styles.screen}>
       <NeonBackground />
-      <View style={styles.content}>
+      <View
+        style={[
+          styles.content,
+          {
+            paddingHorizontal: horizontalPadding,
+            paddingTop: isCompactHeight ? 8 : 12,
+            paddingBottom: isCompactHeight ? 12 : 16,
+            gap: contentSpacing,
+          },
+        ]}
+      >
         <HUD
           timeMs={elapsedMs}
           hintsRemaining={hintsRemaining}
           onHint={handleHint}
           onRestart={handleRestart}
           hintDisabled={hintsRemaining <= 0 || completed}
+          compact={isCompactHeight}
         />
 
-        <View style={[styles.main, isWide ? styles.mainRow : styles.mainColumn]}>
+        <View style={[styles.main, useRowLayout ? styles.mainRow : styles.mainColumn]}>
           <View style={[styles.gridWrapper, { width: gridWidth }]}>
             <WordGrid
               grid={gridData.grid}
@@ -235,11 +257,21 @@ export default function WordSearchScreen() {
               onSelectionEnd={handleSelectionEnd}
             />
           </View>
-          <View style={styles.listWrapper}>
-            <WordList words={WORD_LIST} foundWordIds={foundWordIds} />
-            <View style={styles.statsCard}>
-              <Text style={styles.statsLabel}>Best Time</Text>
-              <Text style={styles.statsValue}>{bestTimeText}</Text>
+          <View style={[styles.listWrapper, useRowLayout && styles.listWrapperWide]}>
+            <WordList
+              words={WORD_LIST}
+              foundWordIds={foundWordIds}
+              compact={isCompactHeight}
+              containerStyle={listMaxHeight ? { maxHeight: listMaxHeight } : undefined}
+            />
+            <View
+              style={[
+                styles.statsCard,
+                isCompactHeight && styles.statsCardCompact,
+              ]}
+            >
+              <Text style={[styles.statsLabel, isCompactHeight && styles.statsLabelCompact]}>Best Time</Text>
+              <Text style={[styles.statsValue, isCompactHeight && styles.statsValueCompact]}>{bestTimeText}</Text>
               <View style={styles.toggles}>
                 <Pressable onPress={toggleMusic} style={styles.toggleButton}>
                   <Text style={styles.toggleText}>Music: {musicEnabled ? 'On' : 'Off'}</Text>
@@ -255,8 +287,10 @@ export default function WordSearchScreen() {
           </View>
         </View>
 
-        <View style={styles.bottomRow}>
-          <Text style={styles.progressText}>{progressText}</Text>
+        <View style={[styles.bottomRow, isCompactWidth && styles.bottomRowCompact]}>
+          <Text style={[styles.progressText, isCompactWidth && styles.progressTextCompact]}>
+            {progressText}
+          </Text>
           <Pressable onPress={() => router.push('/garage')} style={styles.garageButton}>
             <Text style={styles.garageText}>Garage</Text>
           </Pressable>
@@ -316,6 +350,9 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: 14,
   },
+  listWrapperWide: {
+    minWidth: 240,
+  },
   statsCard: {
     padding: 14,
     borderRadius: 18,
@@ -323,17 +360,26 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(90, 186, 255, 0.25)',
   },
+  statsCardCompact: {
+    padding: 12,
+  },
   statsLabel: {
     color: '#88c9ff',
     fontSize: 12,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
+  statsLabelCompact: {
+    fontSize: 10,
+  },
   statsValue: {
     color: '#f0fbff',
     fontSize: 18,
     fontWeight: '700',
     marginVertical: 4,
+  },
+  statsValueCompact: {
+    fontSize: 16,
   },
   toggles: {
     marginTop: 10,
@@ -356,11 +402,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    gap: 12,
+  },
+  bottomRowCompact: {
+    flexDirection: 'column',
+    alignItems: 'flex-start',
   },
   progressText: {
     color: '#9ad7ff',
     fontSize: 14,
     fontWeight: '600',
+  },
+  progressTextCompact: {
+    fontSize: 12,
   },
   garageButton: {
     paddingVertical: 10,

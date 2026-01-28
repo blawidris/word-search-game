@@ -150,6 +150,8 @@ const WordGridComponent = ({
     transform: [{ translateX: shake.value }],
   }));
 
+  const fontSize = Math.max(11, Math.min(18, cellSize * 0.52));
+
   return (
     <GestureDetector gesture={gesture}>
       <Animated.View style={[styles.card, shakeStyle]} onLayout={handleLayout}>
@@ -164,6 +166,7 @@ const WordGridComponent = ({
                     index={index}
                     letter={letter}
                     size={cellSize}
+                    fontSize={fontSize}
                     selection={selection}
                     isFound={foundIndices.has(index)}
                     isHinted={hintIndex === index}

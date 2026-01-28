@@ -1,5 +1,5 @@
 import React, { memo, useEffect } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleProp, StyleSheet, Text, View, ViewStyle } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
 import { WordEntry } from '../data/wordList';
@@ -7,14 +7,17 @@ import { WordEntry } from '../data/wordList';
 type WordListProps = {
   words: WordEntry[];
   foundWordIds: Set<string>;
+  compact?: boolean;
+  containerStyle?: StyleProp<ViewStyle>;
 };
 
 type WordListItemProps = {
   label: string;
   found: boolean;
+  compact: boolean;
 };
 
-const WordListItem = memo(({ label, found }: WordListItemProps) => {
+const WordListItem = memo(({ label, found, compact }: WordListItemProps) => {
   const progress = useSharedValue(found ? 1 : 0);
 
   useEffect(() => {
@@ -30,6 +33,7 @@ const WordListItem = memo(({ label, found }: WordListItemProps) => {
     <Animated.Text
       style={[
         styles.word,
+        compact && styles.wordCompact,
         animatedStyle,
         found && styles.wordFound,
       ]}
@@ -39,13 +43,18 @@ const WordListItem = memo(({ label, found }: WordListItemProps) => {
   );
 });
 
-export const WordList = ({ words, foundWordIds }: WordListProps) => {
+export const WordList = ({ words, foundWordIds, compact = false, containerStyle }: WordListProps) => {
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Word List</Text>
+    <View style={[styles.container, compact && styles.containerCompact, containerStyle]}>
+      <Text style={[styles.title, compact && styles.titleCompact]}>Word List</Text>
       <ScrollView contentContainerStyle={styles.listContent} showsVerticalScrollIndicator={false}>
         {words.map((word) => (
-          <WordListItem key={word.id} label={word.display} found={foundWordIds.has(word.id)} />
+          <WordListItem
+            key={word.id}
+            label={word.display}
+            found={foundWordIds.has(word.id)}
+            compact={compact}
+          />
         ))}
       </ScrollView>
     </View>
@@ -62,6 +71,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(90, 186, 255, 0.3)',
   },
+  containerCompact: {
+    padding: 12,
+    minHeight: 150,
+  },
   title: {
     color: '#b5e3ff',
     fontSize: 16,
@@ -70,6 +83,9 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 1.5,
   },
+  titleCompact: {
+    fontSize: 14,
+  },
   listContent: {
     gap: 10,
   },
@@ -77,6 +93,9 @@ const styles = StyleSheet.create({
     color: '#eef7ff',
     fontSize: 15,
     fontWeight: '600',
+  },
+  wordCompact: {
+    fontSize: 13,
   },
   wordFound: {
     textDecorationLine: 'line-through',

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, SafeAreaView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { router } from 'expo-router';
 
 import { NeonBackground } from '../src/components/NeonBackground';
@@ -18,13 +18,23 @@ const GAME_CARDS: GameCardConfig[] = [
 ];
 
 export default function HomeScreen() {
+  const { width } = useWindowDimensions();
+  const isCompact = width < 360;
+  const isWide = width >= 800;
+  const cardWidth = isWide ? '31%' : isCompact ? '100%' : '48%';
+  const titleSize = isCompact ? 24 : isWide ? 32 : 28;
+  const subtitleSize = isCompact ? 12 : 14;
+  const contentPadding = isCompact ? 18 : 24;
+
   return (
     <SafeAreaView style={styles.screen}>
       <NeonBackground />
-      <View style={styles.content}>
+      <View style={[styles.content, { padding: contentPadding }]}>
         <View>
-          <Text style={styles.title}>Car Word Search</Text>
-          <Text style={styles.subtitle}>A neon garage of mind-bending car puzzles.</Text>
+          <Text style={[styles.title, { fontSize: titleSize }]}>Car Word Search</Text>
+          <Text style={[styles.subtitle, { fontSize: subtitleSize }]}>
+            A neon garage of mind-bending car puzzles.
+          </Text>
         </View>
 
         <View style={styles.cardGrid}>
@@ -36,10 +46,15 @@ export default function HomeScreen() {
                 styles.card,
                 card.route && styles.cardActive,
                 pressed && card.route && styles.cardPressed,
+                { width: cardWidth },
               ]}
             >
-              <Text style={styles.cardTitle}>{card.title}</Text>
-              <Text style={styles.cardSubtitle}>{card.subtitle}</Text>
+              <Text style={[styles.cardTitle, isCompact && styles.cardTitleCompact]}>
+                {card.title}
+              </Text>
+              <Text style={[styles.cardSubtitle, isCompact && styles.cardSubtitleCompact]}>
+                {card.subtitle}
+              </Text>
             </Pressable>
           ))}
         </View>
@@ -80,7 +95,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   card: {
-    width: '48%',
     minHeight: 120,
     padding: 16,
     borderRadius: 20,
@@ -105,10 +119,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
   },
+  cardTitleCompact: {
+    fontSize: 14,
+  },
   cardSubtitle: {
     color: '#9fd7ff',
     marginTop: 8,
     fontSize: 12,
+  },
+  cardSubtitleCompact: {
+    fontSize: 11,
   },
   garageButton: {
     alignSelf: 'center',

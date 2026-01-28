@@ -14,6 +14,7 @@ type LetterCellProps = {
   letter: string;
   index: number;
   size: number;
+  fontSize: number;
   selection: SharedValue<number[]>;
   isFound: boolean;
   isHinted: boolean;
@@ -30,6 +31,7 @@ const LetterCellComponent = ({
   letter,
   index,
   size,
+  fontSize,
   selection,
   isFound,
   isHinted,
@@ -75,7 +77,7 @@ const LetterCellComponent = ({
 
   return (
     <Animated.View style={[styles.cell, animatedStyle, { width: size, height: size }]}>
-      <Text style={styles.letter}>{letter}</Text>
+      <Text style={[styles.letter, { fontSize }]}>{letter}</Text>
     </Animated.View>
   );
 };

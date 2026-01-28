@@ -16,14 +16,22 @@ type HUDProps = {
   onHint: () => void;
   onRestart: () => void;
   hintDisabled?: boolean;
+  compact?: boolean;
 };
 
-export const HUD = ({ timeMs, hintsRemaining, onHint, onRestart, hintDisabled }: HUDProps) => {
+export const HUD = ({
+  timeMs,
+  hintsRemaining,
+  onHint,
+  onRestart,
+  hintDisabled,
+  compact = false,
+}: HUDProps) => {
   return (
-    <View style={styles.container}>
-      <View style={styles.timerCard}>
-        <Text style={styles.timerLabel}>Time</Text>
-        <Text style={styles.timerValue}>{formatTime(timeMs)}</Text>
+    <View style={[styles.container, compact && styles.containerCompact]}>
+      <View style={[styles.timerCard, compact && styles.timerCardCompact]}>
+        <Text style={[styles.timerLabel, compact && styles.timerLabelCompact]}>Time</Text>
+        <Text style={[styles.timerValue, compact && styles.timerValueCompact]}>{formatTime(timeMs)}</Text>
       </View>
       <View style={styles.actions}>
         <Pressable
@@ -31,19 +39,24 @@ export const HUD = ({ timeMs, hintsRemaining, onHint, onRestart, hintDisabled }:
           disabled={hintDisabled}
           style={({ pressed }) => [
             styles.actionButton,
+            compact && styles.actionButtonCompact,
             hintDisabled && styles.actionDisabled,
             pressed && !hintDisabled && styles.actionPressed,
           ]}
         >
-          <Text style={styles.actionText}>Hint</Text>
-          <Text style={styles.actionSub}>{hintsRemaining}</Text>
+          <Text style={[styles.actionText, compact && styles.actionTextCompact]}>Hint</Text>
+          <Text style={[styles.actionSub, compact && styles.actionSubCompact]}>{hintsRemaining}</Text>
         </Pressable>
         <Pressable
           onPress={onRestart}
-          style={({ pressed }) => [styles.actionButton, pressed && styles.actionPressed]}
+          style={({ pressed }) => [
+            styles.actionButton,
+            compact && styles.actionButtonCompact,
+            pressed && styles.actionPressed,
+          ]}
         >
-          <Text style={styles.actionText}>Restart</Text>
-          <Text style={styles.actionSub}>New</Text>
+          <Text style={[styles.actionText, compact && styles.actionTextCompact]}>Restart</Text>
+          <Text style={[styles.actionSub, compact && styles.actionSubCompact]}>New</Text>
         </Pressable>
       </View>
     </View>
@@ -57,6 +70,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 12,
   },
+  containerCompact: {
+    gap: 8,
+  },
   timerCard: {
     paddingVertical: 10,
     paddingHorizontal: 16,
@@ -65,17 +81,27 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(90, 186, 255, 0.3)',
   },
+  timerCardCompact: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+  },
   timerLabel: {
     color: '#89c9ff',
     fontSize: 12,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
   },
+  timerLabelCompact: {
+    fontSize: 10,
+  },
   timerValue: {
     color: '#e9f6ff',
     fontSize: 22,
     fontWeight: '700',
     letterSpacing: 1,
+  },
+  timerValueCompact: {
+    fontSize: 18,
   },
   actions: {
     flexDirection: 'row',
@@ -91,6 +117,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     minWidth: 84,
   },
+  actionButtonCompact: {
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    minWidth: 72,
+  },
   actionPressed: {
     transform: [{ scale: 0.96 }],
   },
@@ -102,10 +133,16 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '700',
   },
+  actionTextCompact: {
+    fontSize: 11,
+  },
   actionSub: {
     color: '#7de6ff',
     fontSize: 11,
     marginTop: 2,
     textTransform: 'uppercase',
+  },
+  actionSubCompact: {
+    fontSize: 10,
   },
 });

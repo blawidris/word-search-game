@@ -1,19 +1,27 @@
 import React from 'react';
-import { Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, SafeAreaView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { router } from 'expo-router';
 
 import { NeonBackground } from '../src/components/NeonBackground';
 
 export default function GarageScreen() {
+  const { width } = useWindowDimensions();
+  const isCompact = width < 360;
+  const titleSize = isCompact ? 22 : 26;
+  const subtitleSize = isCompact ? 12 : 14;
+  const padding = isCompact ? 18 : 24;
+
   return (
     <SafeAreaView style={styles.screen}>
       <NeonBackground />
-      <View style={styles.content}>
-        <Text style={styles.title}>Garage</Text>
-        <Text style={styles.subtitle}>Your curated lineup of futuristic rides.</Text>
+      <View style={[styles.content, { padding }]}>
+        <Text style={[styles.title, { fontSize: titleSize }]}>Garage</Text>
+        <Text style={[styles.subtitle, { fontSize: subtitleSize }]}>
+          Your curated lineup of futuristic rides.
+        </Text>
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Concept Fleet</Text>
-          <Text style={styles.cardText}>
+          <Text style={[styles.cardTitle, isCompact && styles.cardTitleCompact]}>Concept Fleet</Text>
+          <Text style={[styles.cardText, isCompact && styles.cardTextCompact]}>
             Tune in as new car-themed games are rolled into the garage.
           </Text>
         </View>
@@ -57,10 +65,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
   },
+  cardTitleCompact: {
+    fontSize: 14,
+  },
   cardText: {
     color: '#9fd7ff',
     fontSize: 13,
     marginTop: 8,
+  },
+  cardTextCompact: {
+    fontSize: 12,
   },
   button: {
     marginTop: 'auto',
