@@ -27,6 +27,9 @@
       "expo-router",
       "expo-audio"
     ],
+    "experiments": {
+      "typedRoutes": true
+    },
     "scheme": "car-word-search"
   }
 }
